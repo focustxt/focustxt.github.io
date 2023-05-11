@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="https://samrawal.com/apps/focustxt/cloudicon.ico">
+	<title>help | focus.txt</title>
+	<style>
+	 body {
+	     margin: 0;
+	     padding: 0;
+	 }
+
+	 #taskContainer {
+	     width: 90%;
+	     height: 80vh;
+	     font-family: "San Francisco", Consolas, mono;
+	     font-size: 1.2em;
+	     border: none;
+	     outline: none;
+	     overflow: auto;
+	     padding: 0%;
+	     box-sizing: border-box;
+	     margin: 5% auto;
+	     margin-left: 10%;
+	     word-wrap: break-word;
+	 }
+
+	 .task {
+	     color: red;
+	 }
+
+	 .done {
+	     color: grey;
+	 }
+
+	 .notes {
+	     color: skyblue;
+	 }
+	 #downloadButton {
+	     position: fixed;
+	     bottom: 20px;
+	     right: 20px;
+	     background-color: rgba(255, 255, 255, 0.8);
+	     border: 1px solid rgba(0, 0, 0, 0.2);
+	     color: rgba(0, 0, 0, 0.8);
+	     padding: 10px 15px;
+	     font-size: 0.9em;
+	     cursor: pointer;
+	     border-radius: 5px;
+	     text-decoration: none;
+	     transition: background-color 0.3s, color 0.3s;
+	 }
+
+	 #downloadButton:hover {
+	     background-color: rgba(0, 0, 0, 0.8);
+	     color: rgba(255, 255, 255, 0.8);
+	 }
+
+	 
+	</style>
+</head>
+
+<body>
+	<div id="taskContainer"</div>
+<button id="downloadButton" style="position: fixed; bottom: 20px; right: 70px;">download</button>
+<button id="downloadButton" onclick="help()" style="position: fixed; bottom: 20px; right: 20px;">?</button>
+
+	<script>
+	 const taskContainer = document.getElementById('taskContainer');
+
+	 let defaultText = `# notes <br>
+- ☁️ welcome to focus.txt! <br>
+- focus is a simple, ephemeral daily planner. <br>
+- made by me: <br>
+&nbsp;&nbsp; - sam rawal | samrawal.com | twitter.com/samarthrawal <br>
+
+# full featureset <br>
+- Variables (use format %VARIABLE%): <br>
+&nbsp;&nbsp; - currently supported variables: date, time, check, quote <br>
+- Export to .txt <br>
+- All data auto-saved via local storage <br>
+- Auto-bulleting <br>
+
+# tasks <br>
+- please reach out with any suggestions, comments, or feedback! <br>
+- me@samrawal.com | twitter.com/samarthrawal
+`
+
+	  
+	  taskContainer.innerHTML = "<i>This is the help page. <a href=\"../index.html\">Go back to the main page</a> for your editable doc!<i><hr>" + defaultText;
+
+	 function updateColors() {
+	     const lines = taskContainer.innerText.split('\n');
+	     let inTasks = false;
+	     let inDone = false;
+	     let inNotes = false;
+	     let coloredText = '';
+	     for(const line of lines) {
+		 if(line.trim() === '# tasks') {
+		     inTasks = true;
+		     inDone = false;
+		     inNotes = false;
+		 } else if(line.trim() === '# full featureset') {
+		     inTasks = false;
+		     inDone = true;
+		     inNotes = false;
+		 } else if(line.trim() === '# notes') {
+		     inTasks = false;
+		     inDone = false;
+		     inNotes = true;
+		 }
+		 if(inTasks && line.trim() !== '# tasks') {
+		     coloredText += '<span class="task">' + line + '</span><br>';
+		 } else if(inDone && line.trim() !== '# full featureset') {
+		     coloredText += '<span class="done">' + line + '</span><br>';
+		 } else if(inNotes && line.trim() !== '# notes') {
+		     coloredText += '<span class="notes">' + line + '</span><br>';
+		 } else {
+		     coloredText += '<br>' + line + '<br>';
+		 }
+	     }
+	     taskContainer.innerHTML = "<p style=\"font-family: 'San Francisco', Consolas, monospace;\">" + coloredText + "</p>";
+	 }
+	 updateColors();
+
+	</script>
+</body>
+
+</html>
