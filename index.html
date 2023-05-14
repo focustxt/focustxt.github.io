@@ -28,7 +28,7 @@
 		word-wrap: break-word;
 	}
 
-	.task {
+	.tasks {
 		color: red;
 	}
 
@@ -170,6 +170,27 @@
 	 });
 
 	 function updateColors() {
+    const lines = taskContainer.innerText.split('\n');
+    let coloredText = '';
+    let currentClass = '';
+    for(const line of lines) {
+        if(line.trim().startsWith('# ')) {
+            // Derive a class from the line text
+            currentClass = line.trim().substring(2).replace(/\s/g, '_').toLowerCase();
+        }
+        if(line.trim().length === 0) {
+            continue;
+        }
+        if(line.trim() !== `# ${currentClass.replace(/_/g, ' ')}`) {
+            coloredText += `<span class="${currentClass}">${line}</span><br>`;
+        } else {
+            coloredText += `<br>${line}<br>`;
+        }
+    }
+    taskContainer.innerHTML = "<p style=\"font-family: 'San Francisco', Consolas, monospace;\">" + coloredText + "</p>";
+	 }
+
+	 function updateColors_old() {
 	     const lines = taskContainer.innerText.split('\n');
 	     let inTasks = false;
 	     let inDone = false;
