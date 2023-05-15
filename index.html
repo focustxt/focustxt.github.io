@@ -40,6 +40,10 @@
 		color: skyblue;
 	}
 
+	.other {
+		color: forestgreen;
+	}
+
 	#downloadButton {
 		position: fixed;
 		bottom: 20px;
@@ -173,15 +177,22 @@
     const lines = taskContainer.innerText.split('\n');
     let coloredText = '';
     let currentClass = '';
+    const headerPattern = /^#\s\w+(\s\w+)*$/; // Pattern to match "# {word or words}"
+
     for(const line of lines) {
         if(line.trim().startsWith('# ')) {
             // Derive a class from the line text
             currentClass = line.trim().substring(2).replace(/\s/g, '_').toLowerCase();
+            // Check if the derived class is "tasks", "notes", or "done"
+            if (!["tasks", "notes", "done"].includes(currentClass)) {
+                currentClass = "other";
+            }
+
         }
         if(line.trim().length === 0) {
             continue;
         }
-        if(line.trim() !== `# ${currentClass.replace(/_/g, ' ')}`) {
+        if(!headerPattern.test(line.trim())) {
             coloredText += `<span class="${currentClass}">${line}</span><br>`;
         } else {
             coloredText += `<br>${line}<br>`;
