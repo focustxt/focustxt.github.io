@@ -174,76 +174,28 @@
 	 });
 
 	 function updateColors() {
-    const lines = taskContainer.innerText.split('\n');
-    let coloredText = '';
-    let currentClass = '';
-    const headerPattern = /^#\s\w+(\s\w+)*$/; // Pattern to match "# {word or words}"
-
-    for(const line of lines) {
-        if(line.trim().startsWith('# ')) {
-            // Derive a class from the line text
-            currentClass = line.trim().substring(2).replace(/\s/g, '_').toLowerCase();
-            // Check if the derived class is "tasks", "notes", or "done"
-            if (!["tasks", "notes", "done"].includes(currentClass)) {
-                currentClass = "other";
-            }
-
-        }
-        if(line.trim().length === 0) {
-            continue;
-        }
-        if(!headerPattern.test(line.trim())) {
-            coloredText += `<span class="${currentClass}">${line}</span><br>`;
-        } else {
-            coloredText += `<br>${line}<br>`;
-        }
-    }
-    taskContainer.innerHTML = "<p style=\"font-family: 'San Francisco', Consolas, monospace;\">" + coloredText + "</p>";
-	 }
-
-	 function updateColors_old() {
 	     const lines = taskContainer.innerText.split('\n');
-	     let inTasks = false;
-	     let inDone = false;
-	     let inNotes = false;
 	     let coloredText = '';
-	     for(const line_ of lines) {
-		 line = line_.trimEnd();
-		 if(line.trim() === '# tasks') {
-		     inTasks = true;
-		     inDone = false;
-		     inNotes = false;
-		 } else if(line.trim() === '# done') {
-		     inTasks = false;
-		     inDone = true;
-		     inNotes = false;
-		 } else if(line.trim() === '# notes') {
-		     inTasks = false;
-		     inDone = false;
-		     inNotes = true;
+	     let currentClass = '';
+	     const headerPattern = /^#\s\w+(\s\w+)*$/; // Pattern to match "# {word or words}"
+	     for(const line of lines) {
+		 if(line.trim().startsWith('# ')) {
+		     // Derive a class from the line text
+		     currentClass = line.trim().substring(2).replace(/\s/g, '_').toLowerCase();
+		     // Check if the derived class is "tasks", "notes", or "done"
+		     if(!["tasks", "notes", "done"].includes(currentClass)) {
+			 currentClass = "other";
+		     }
 		 }
 		 if(line.trim().length === 0) {
 		     continue;
 		 }
-		 if(inTasks && line.trim() !== '# tasks') {
-		     coloredText += '<span class="task">' + line + '</span><br>';
-		 } else if(inDone && line.trim() !== '# done') {
-		     coloredText += '<span class="done">' + line + '</span><br>';
-		 } else if(inNotes && line.trim() !== '# notes') {
-		     coloredText += '<span class="notes">' + line + '</span><br>';
+		 if(!headerPattern.test(line.trim())) {
+		     coloredText += `<span class="${currentClass}">${line}</span><br>`;
 		 } else {
-		     //coloredText += '<br>' + line + '<br>';
-		     coloredText += '<br>' + line;
-		     if(inTasks) {
-			 coloredText += '<span class="task">&nbsp;</span><br>';
-		     } else if(inDone) {
-			 coloredText += '<span class="done">&nbsp;</span><br>';
-		     } else if(inNotes) {
-			 coloredText += '<span class="notes">&nbsp;</span><br>';
-		     }
+		     coloredText += `<br>${line}<br>`;
 		 }
 	     }
-	     //taskContainer.innerHTML = "<pre>" + coloredText + "</pre>";
 	     taskContainer.innerHTML = "<p style=\"font-family: 'San Francisco', Consolas, monospace;\">" + coloredText + "</p>";
 	 }
 	 updateColors();
