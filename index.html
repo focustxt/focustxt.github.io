@@ -58,6 +58,21 @@
 		text-decoration: none;
 		transition: background-color 0.3s, color 0.3s;
 	}
+	#sideButton {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.2);
+		color: rgba(0, 0, 0, 0.8);
+		padding: 10px 15px;
+		font-size: 0.9em;
+		cursor: pointer;
+		border-radius: 5px;
+		text-decoration: none;
+		transition: background-color 0.3s, color 0.3s;
+	}
+
 
 	#downloadButton:hover {
 		background-color: rgba(0, 0, 0, 0.8);
@@ -68,6 +83,8 @@
 
 <body>
 	<div id="taskContainer" contenteditable></div>
+
+	<button id="sideButton" style="position: fixed; bottom: 20px; right: 175px;">update colors</button>
 	<button id="downloadButton" style="position: fixed; bottom: 20px; right: 70px;">download</button>
 	<button id="downloadButton" onclick="help()" style="position: fixed; bottom: 20px; right: 20px;">?</button>
 	<script>
