@@ -1,1 +1,269 @@
-index.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="https://samrawal.com/apps/focustxt/cloudicon.ico">
+	<title>focus.txt</title>
+	<style>
+	body {
+		margin: 0;
+		padding: 0;
+	}
+
+	#taskContainer {
+		width: 90%;
+		height: 80vh;
+		font-family: "San Francisco", Consolas, mono;
+		font-size: 1.2em;
+		border: none;
+		outline: none;
+		overflow: auto;
+		padding: 0%;
+		box-sizing: border-box;
+		margin: 5% auto;
+		margin-left: 10%;
+		padding-right: 10%;
+		word-wrap: break-word;
+	}
+
+	.tasks {
+		color: red;
+	}
+
+	.done {
+		color: lightgrey;
+	}
+
+	.notes {
+		color: skyblue;
+	}
+
+	.other {
+		color: forestgreen;
+	}
+
+	#downloadButton {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.2);
+		color: rgba(0, 0, 0, 0.8);
+		padding: 10px 15px;
+		font-size: 0.9em;
+		cursor: pointer;
+		border-radius: 5px;
+		text-decoration: none;
+		transition: background-color 0.3s, color 0.3s;
+	}
+	#sideButton {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background-color: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.2);
+		color: rgba(0, 0, 0, 0.8);
+		padding: 10px 15px;
+		font-size: 0.9em;
+		cursor: pointer;
+		border-radius: 5px;
+		text-decoration: none;
+		transition: background-color 0.3s, color 0.3s;
+	}
+
+
+	#downloadButton:hover {
+		background-color: rgba(0, 0, 0, 0.8);
+		color: rgba(255, 255, 255, 0.8);
+	}
+	</style>
+</head>
+
+<body>
+	<div id="taskContainer" contenteditable></div>
+
+	<button id="sideButton" style="position: fixed; bottom: 20px; right: 175px;">update colors</button>
+	<button id="downloadButton" style="position: fixed; bottom: 20px; right: 70px;">download</button>
+	<button id="downloadButton" onclick="help()" style="position: fixed; bottom: 20px; right: 20px;">?</button>
+	<script>
+	 const taskContainer = document.getElementById('taskContainer');
+	 let timeoutId = null;
+
+	 function formatDate(date) {
+	     const day = date.getDate();
+	     const month = date.getMonth() + 1;
+	     const year = date.getFullYear();
+	     return `${month}/${day}/${year}`;
+	 }
+	 // Override the default behavior of the "Enter" key
+	 taskContainer.addEventListener('keydown', (event) => {
+	     if(event.key === 'Enter' && !event.shiftKey) {
+		 event.preventDefault();
+		 // Get current line
+		 const selection_line = window.getSelection();
+		 const range_line = selection_line.getRangeAt(0);
+		 const startNode = range_line.startContainer;
+		 const textContent = startNode.textContent;
+		 const startOffset = range_line.startOffset;
+		 const lineStart = textContent.lastIndexOf('\n', startOffset - 1); // -1 because we don't want to get current position if it's a newline
+		 const lineEnd = textContent.indexOf('\n', startOffset);
+		 const currentLine = textContent.slice(lineStart + 1, lineEnd > -1 ? lineEnd : undefined).trim();
+		 // Insert space character
+		 document.execCommand('insertText', false, ' ');
+		 // Move cursor one position to the left
+		 const selection = window.getSelection();
+		 const range = selection.getRangeAt(0);
+		 range.setStart(range.startContainer, range.startOffset - 1);
+		 range.collapse(true);
+		 selection.removeAllRanges();
+		 selection.addRange(range);
+		 document.execCommand('insertLineBreak');
+		 // Insert "-" if current line starts with "-"
+		 if(currentLine.startsWith("-")) {
+		     document.execCommand('insertText', false, '- ');
+		 }
+	     }
+	 });
+	 const savedText = localStorage.getItem('taskText');
+	 let defaultText = `# notes <br>
+- ☁️ welcome to focus.txt! <br>
+- focus is a simple, ephemeral daily planner. <br>
+- enter variables with the format %VARIABLE%: <br>
+&nbsp;&nbsp; - currently supported variables: date, time, check, quote <br>
+<br> # tasks <br>
+- add tasks here! <br>
+- when you are done, move them below. <br>
+- all your data is auto-saved and stored locally <br>
+
+<br> # done <br>
+- completed tasks or notes go here. <br>
+- for this message + more features, hit the \`?\` button below :)
+	 `
+	 if(savedText && savedText.trim() !== "") {
+	     taskContainer.innerHTML = savedText;
+	 } else {
+	     taskContainer.innerHTML = defaultText;
+	     //taskContainer.innerHTML = "<pre># tasks<br>- <br><br># done<br>- <br><br># notes<br>- </pre>";
+	 }
+	 if(taskContainer.textContent.trim() == "") {
+	     taskContainer.innerHTML = defaultText;
+	     //taskContainer.innerHTML = "<pre># notes<br>- <br><br># tasks<br>- <br><br># done<br>- <br><br></pre>";
+	 }
+
+	 function insert_special(original, replacement) {
+	     const selection = window.getSelection();
+	     const range = selection.getRangeAt(0);
+	     range.setStart(range.startContainer, range.startOffset - original.length + 1);
+	     range.deleteContents();
+	     document.execCommand('insertText', false, "" + replacement);
+	 }
+	 taskContainer.addEventListener('input', () => {
+	     const text = taskContainer.innerHTML;
+	     // Check if the innerHTML contains the string "%date%"
+	     if(taskContainer.innerHTML.includes('%date%')) {
+		 const currentDate = formatDate(new Date());
+		 insert_special('%date%;', currentDate);
+	     }
+	     if(taskContainer.innerHTML.includes('%time%')) {
+		 const currentTime = getCurrentTimeFormatted();
+		 insert_special('%time%;', currentTime);
+	     }
+	     if(taskContainer.innerHTML.includes('%check%')) {
+		 insert_special('%check%;', "✅");
+	     }
+	     if(taskContainer.innerHTML.includes('%quote%')) {
+		 var quote = getRandomMotivationalPhrase();
+		 insert_special('%quote%;', quote);
+	     }
+	     localStorage.setItem('taskText', text);
+	     //clearTimeout(timeoutId);
+	     //timeoutId = setTimeout(() => {
+	     //location.reload();
+	     //}, 7000); // 7 seconds
+	 });
+	 taskContainer.addEventListener('blur', updateColors);
+	 taskContainer.addEventListener('paste', (event) => {
+	     setTimeout(() => {
+		 taskContainer.blur();
+	     }, 0);
+	 });
+
+	 function updateColors() {
+	     const lines = taskContainer.innerText.split('\n');
+	     let coloredText = '';
+	     let currentClass = '';
+	     const headerPattern = /^#\s\w+(\s\w+)*$/; // Pattern to match "# {word or words}"
+	     for(const line of lines) {
+		 if(line.trim().startsWith('# ')) {
+		     // Derive a class from the line text
+		     currentClass = line.trim().substring(2).replace(/\s/g, '_').toLowerCase();
+		     // Check if the derived class is "tasks", "notes", or "done"
+		     if(!["tasks", "notes", "done"].includes(currentClass)) {
+			 currentClass = "other";
+		     }
+		 }
+		 if(line.trim().length === 0) {
+		     continue;
+		 }
+		 if(!headerPattern.test(line.trim())) {
+		     coloredText += `<span class="${currentClass}">${line}</span><br>`;
+		 } else {
+		     coloredText += `<br>${line}<br>`;
+		 }
+	     }
+	     taskContainer.innerHTML = "<p style=\"font-family: 'San Francisco', Consolas, monospace;\">" + coloredText + "</p>";
+	 }
+	 updateColors();
+
+	 function downloadAsTxt() {
+	     const content = taskContainer.innerText;
+	     const filename = 'focus.txt';
+	     const contentType = 'text/plain;charset=utf-8';
+	     const a = document.createElement('a');
+	     const file = new Blob([content], {
+		 type: contentType
+	     });
+	     a.href = URL.createObjectURL(file);
+	     a.download = filename;
+	     a.style.display = 'none';
+	     document.body.appendChild(a);
+	     a.click();
+	     document.body.removeChild(a);
+	 }
+	 const downloadButton = document.getElementById('downloadButton');
+	 downloadButton.addEventListener('click', downloadAsTxt);
+
+	 function help() {
+	     window.open('help.html', '_blank');
+	 }
+
+	 function getRandomMotivationalPhrase() {
+	     const phrases = ["Believe you can and you're halfway there.", "Success is the sum of small efforts, repeated.", "Don't watch the clock; do what it does.", "Act as if what you do makes a difference.", "Aim for the moon. If you miss, you may hit a star.", "Action is the foundational key to all success.", "Hardships often prepare people for an extraordinary destiny.", "Success is not final, failure is not fatal.", "Opportunities don't happen; you create them.", "Believe in yourself and all that you are.", "If you can dream it, you can do it.", "Innovation distinguishes between a leader and a follower.", "The road to success is always under construction.", "Dream big and dare to fail.", "Winning isn't everything, but wanting to win is.", "You miss 100% of the shots you don't take.", "It's not whether you get knocked down, it's whether you get up.", ];
+	     const randomIndex = Math.floor(Math.random() * phrases.length);
+	     return phrases[randomIndex];
+	 }
+
+	 function getCurrentTimeFormatted() {
+	     const currentTime = new Date();
+	     let hours = currentTime.getHours();
+	     let minutes = currentTime.getMinutes();
+	     let meridiem = 'am';
+	     if(hours >= 12) {
+		 meridiem = 'pm';
+		 if(hours > 12) {
+		     hours -= 12;
+		 }
+	     }
+	     if(minutes < 10) {
+		 minutes = '0' + minutes;
+	     }
+	     const formattedTime = `${hours}:${minutes}${meridiem}`;
+	     return formattedTime;
+	 }
+	 console.log("made by Sam Rawal. https://samrawal.com");
+	</script>
+</body>
+
+</html>
